@@ -5,13 +5,11 @@ import base64
 from datetime import datetime
 
 # --- 1. 보안 설정 (키 숨기기) ---
-# 세션 상태에 키가 없으면 입력을 받습니다.
 if "GEMINI_API_KEY" not in st.session_state:
     st.session_state.GEMINI_API_KEY = ""
 if "ELEVENLABS_API_KEY" not in st.session_state:
     st.session_state.ELEVENLABS_API_KEY = ""
 
-# 사이드바에 키 입력창 배치
 with st.sidebar:
     st.header("🔑 API 설정")
     g_key = st.text_input("Gemini API Key", value=st.session_state.GEMINI_API_KEY, type="password")
@@ -20,38 +18,80 @@ with st.sidebar:
     if st.button("설정 저장"):
         st.session_state.GEMINI_API_KEY = g_key
         st.session_state.ELEVENLABS_API_KEY = e_key
-        st.success("키가 설정되었습니다!")
+        st.success("키가 저장되었습니다!")
 
-# 키가 설정되었을 때만 모델 초기화
+# 키 체크 및 모델 설정
 if st.session_state.GEMINI_API_KEY:
     genai.configure(api_key=st.session_state.GEMINI_API_KEY)
-    model = genai.GenerativeModel('models/gemini-2.5-flash') # 최신 모델명 확인
+    model = genai.GenerativeModel('models/gemini-2.5-flash')
 else:
-    st.warning("왼쪽 사이드바에서 Gemini API 키를 입력해주세요.")
+    st.info("왼쪽 사이드바에서 API 키를 먼저 입력해주세요.")
     st.stop()
 
-# 보이스 ID 및 웹후크는 그대로 유지 (공개되어도 비교적 안전한 정보들)
 VOICE_ID = "dHC7jAYDvo5m8CkyQZnL"
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1461850433458016308/6olE8TMTSyKgM81_p5BdA8ZtrnL1uo5NyD1Y7Yt8F-taUM_v1KfnRUCNV4FoiCRerBYQ"
 
-# --- 2. 디자인 및 화면 설정 ---
-st.set_page_config(page_title="AI 초록", page_icon="🟢")
+# --- 2. 다크 모드 디자인 설정 ---
+st.set_page_config(page_title="AI 초록 - Dark", page_icon="🟢")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #f5f5f5; }
-    .user-bubble { background-color: #fee500; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: inline-block; float: right; clear: both; color: black; font-family: 'Malgun Gothic'; }
+    /* 전체 배경을 검은색으로 */
+    .stApp { 
+        background-color: #0e1117; 
+        color: #ffffff;
+    }
+    
+    /* 제목 및 텍스트 색상 화이트로 고정 */
+    h1, h2, h3, p, span {
+        color: #ffffff !important;
+    }
+
+    /* 유저 말풍선 (카톡 노란색 유지하되 가독성 높임) */
+    .user-bubble { 
+        background-color: #fee500; 
+        padding: 12px; 
+        border-radius: 15px; 
+        margin-bottom: 10px; 
+        display: inline-block; 
+        float: right; 
+        clear: both; 
+        color: #000000 !important; /* 글자는 검은색 */
+        font-family: 'Malgun Gothic';
+        font-weight: 500;
+    }
+
+    /* AI 말풍선 (어두운 배경에 맞는 진한 회색) */
     .ai-container { display: flex; align-items: flex-start; margin-bottom: 10px; clear: both; }
-    .profile-img { width: 45px; height: 45px; border-radius: 50%; margin-right: 10px; }
-    .ai-bubble { background-color: white; padding: 12px; border-radius: 15px; display: inline-block; color: black; border: 1px solid #ddd; }
-    .ai-name { font-size: 13px; color: #555; margin-bottom: 5px; font-weight: bold; }
+    .profile-img { width: 45px; height: 45px; border-radius: 50%; margin-right: 10px; border: 2px solid #2e7d32; }
+    
+    .ai-bubble { 
+        background-color: #262730; 
+        padding: 12px; 
+        border-radius: 15px; 
+        display: inline-block; 
+        color: #ffffff !important; 
+        border: 1px solid #444;
+    }
+    
+    .ai-name { 
+        font-size: 13px; 
+        color: #a0a0a0 !important; 
+        margin-bottom: 5px; 
+        font-weight: bold; 
+    }
+
+    /* 하단 입력창 배경 조정 */
+    .stChatInputContainer {
+        background-color: #1a1c24 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- 3. 핵심 기능 함수 ---
+# --- 3. 기능 함수 ---
 def send_to_discord(user_msg, ai_msg):
     data = {
         "embeds": [{
@@ -78,7 +118,7 @@ def speak_live(text):
             st.markdown(f'<audio autoplay="true"><source src="data:audio/mp3;base64,{b64}"></audio>', unsafe_allow_html=True)
     except: pass
 
-# --- 4. 메인 채팅 ---
+# --- 4. 메인 화면 출력 ---
 st.title("🎙️ AI 비서 '초록'")
 PROFILE_URL = "https://cdn-icons-png.flaticon.com/512/4333/4333609.png"
 
@@ -99,7 +139,7 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("메시지를 입력하세요..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     
-    with st.spinner("연초록이 대답을 적는 중..."):
+    with st.spinner("생각 중..."):
         try:
             response = model.generate_content(prompt)
             answer = response.text
