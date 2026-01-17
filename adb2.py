@@ -41,7 +41,7 @@ with st.sidebar:
             new_e_key = st.text_input("ElevenLabs API 키", value=ELEVENLABS_API_KEY)
             # 모델을 직접 입력하거나 선택할 수 있게 추가
             new_model = st.selectbox("사용할 모델 선택", 
-                                    ["models/gemini-2.0-flash", "models/gemini-1.5-flash", "models/gemini-1.5-pro"],
+                                    ["models/gemini-2.5-flash"],
                                     index=0)
             
             if st.button("서버에 모든 설정 저장"):
@@ -125,3 +125,4 @@ if prompt := st.chat_input("메시지를 입력하세요..."):
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
     speak(st.session_state.messages[-1]["content"])
+
