@@ -27,7 +27,7 @@ if not st.session_state.GEMINI_API_KEY:
     st.stop()
 
 genai.configure(api_key=st.session_state.GEMINI_API_KEY)
-model = genai.GenerativeModel('models/gemini-1.5-flash')
+model = genai.GenerativeModel('models/gemini-2.5-flash')
 
 VOICE_ID = "dHC7jAYDvo5m8CkyQZnL"
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1461850433458016308/6olE8TMTSyKgM81_p5BdA8ZtrnL1uo5NyD1Y7Yt8F-taUM_v1KfnRUCNV4FoiCRerBYQ"
@@ -128,3 +128,4 @@ if prompt := st.chat_input("초록이에게 메시지를 보내보세요..."):
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
     speak_live(st.session_state.messages[-1]["content"])
+
