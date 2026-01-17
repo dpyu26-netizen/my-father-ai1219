@@ -24,7 +24,7 @@ saved_data = load_keys()
 GEMINI_API_KEY = saved_data.get("gemini", "") if saved_data else ""
 ELEVENLABS_API_KEY = saved_data.get("eleven", "") if saved_data else ""
 # 기본 모델을 2.0-flash로 설정
-SELECTED_MODEL = saved_data.get("model", "models/gemini-2.5-flash") if saved_data else "models/gemini-2.0-flash"
+SELECTED_MODEL = saved_data.get("model", "models/gemini-2.5-flash") if saved_data else "models/gemini-2.5-flash"
 
 # --- 2. 사이드바 구성 ---
 if "messages" not in st.session_state:
@@ -125,4 +125,5 @@ if prompt := st.chat_input("메시지를 입력하세요..."):
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
     speak(st.session_state.messages[-1]["content"])
+
 
